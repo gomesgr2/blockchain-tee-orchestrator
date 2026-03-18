@@ -1,0 +1,10 @@
+variable "number_machines" { type = number }
+variable "prefix" { type = string }
+variable "location_list" { type = list(string) }
+variable "resource_group_map" { type = map(string) }
+variable "subnet_map" { type = map(string) }
+variable "public_key_ssh" { type = string }
+variable "manifest_path" { type = string }
+variable "enclave_key_path" { type = string }
+variable "generate_public_ip" { type = list(bool) }
+variable "number_untrusted_containers" { type = number }

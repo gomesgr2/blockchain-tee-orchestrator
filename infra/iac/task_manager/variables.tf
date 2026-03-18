@@ -1,0 +1,12 @@
+variable "task_manager_count" { type = number }
+variable "task_manager_locations" { type = list(string) }
+variable "prefix" { type = string }
+variable "task_manager_size" { type = string }
+variable "resource_group_map" { type = map(string) }
+variable "subnet_map" { type = map(string) }
+variable "task_manager_image" { type = string }
+variable "tms_private_keys" { type = list(string) }
+variable "ganache_rpc" { type = string }
+variable "contract_address" { type = string }
+variable "tees_by_location" { type = map(list(string)) }
+variable "public_key_ssh" { type = string }
