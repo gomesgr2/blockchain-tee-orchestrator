@@ -1,5 +1,8 @@
 # Blockchain-TEE Orchestrator
 
+<img width="1025" height="578" alt="Captura de tela de 2026-03-17 21-40-50" src="https://github.com/user-attachments/assets/11f16475-4b05-4b66-aeec-5931a5c1e5b1" />
+
+
 A research prototype for **secure distributed computation using Blockchain and Trusted Execution Environments (TEE)**.
 
 This project implements a **blockchain-orchestrated architecture** where smart contracts coordinate the execution of tasks across trusted compute clusters.
