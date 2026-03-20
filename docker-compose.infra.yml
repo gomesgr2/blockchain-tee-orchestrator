@@ -1,0 +1,82 @@
+# ══════════════════════════════════════════════════════════════════════
+# docker-compose.infra.yml
+#
+# Spin up the infrastructure layer:
+#   - blockchain-node  : Ganache (Ethereum local node)
+#   - contract-deployer: Compiles & deploys the smart contract, then
+#                        writes CONTRACT_ADDRESS to a shared volume
+#   - file-repo        : nginx serving test PDF files
+#
+# Usage:
+#   docker-compose -f docker-compose.infra.yml up
+#
+# After the deployer exits you can read the address with:
+#   docker-compose -f docker-compose.infra.yml logs contract-deployer \
+#     | grep CONTRACT_ADDRESS
+# ══════════════════════════════════════════════════════════════════════
+version: '3.8'
+
+services:
+
+  # ── Ganache: local Ethereum node ─────────────────────────────────────
+  blockchain-node:
+    image: trufflesuite/ganache-cli:latest
+    container_name: blockchain-node
+    ports:
+      - "8545:8545"
+    command:
+      - "--host"
+      - "0.0.0.0"
+      - "--mnemonic"
+      - "foster logic addict figure group distance point simple find outer define type"
+      - "--accounts"
+      - "5"
+      - "--deterministic"
+    networks:
+      pgc-network:
+        aliases:
+          - blockchain-node
+    # No healthcheck — ganache-cli image has no wget/curl.
+    # The contract-deployer retries internally until Ganache is ready.
+
+  # ── Contract deployer: deploys smartContract.sol and prints address ──
+  contract-deployer:
+    build:
+      context: ./blockchain
+      dockerfile: Dockerfile
+    container_name: contract-deployer
+    environment:
+      - GANACHE_RPC=http://blockchain-node:8545
+    depends_on:
+      - blockchain-node      # start order only — deployer retries itself
+    volumes:
+      - contract-address:/contract
+    networks:
+      - pgc-network
+    restart: "no"
+
+  # ── File repo: nginx serving test PDFs ───────────────────────────────
+  file-repo:
+    image: nginx:alpine
+    container_name: file-repo
+    ports:
+      - "8080:80"
+    volumes:
+      - ./test_files:/usr/share/nginx/html
+    networks:
+      pgc-network:
+        aliases:
+          - file-repo
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  pgc-network:
+    name: pgc-shared-net
+    driver: bridge
+
+volumes:
+  contract-address:

@@ -1,0 +1,127 @@
+# ══════════════════════════════════════════════════════════════════════
+# docker-compose.apps.yml
+#
+# Spin up the application layer (must run AFTER infra is up):
+#   Cluster A (West US 2 equivalent locally)
+#     - task-manager-1  : TM-A — exposes :3000
+#     - tee-a1          : TEE-A1 (Intel SGX simulated)
+#     - tee-a2          : TEE-A2
+#
+#   Cluster B (East US 2 equivalent locally)
+#     - task-manager-2  : TM-B — exposes :3001
+#     - tee-b1          : TEE-B1
+#
+# Prerequisites:
+#   1. Run docker-compose.infra.yml first
+#   2. Export the contract address:
+#        export CONTRACT_ADDRESS=$(docker logs contract-deployer 2>&1 \
+#          | grep CONTRACT_ADDRESS | cut -d= -f2)
+#   3. Run this file:
+#        CONTRACT_ADDRESS=$CONTRACT_ADDRESS \
+#          docker-compose -f docker-compose.apps.yml up
+#
+# Or just use: make up  (see Makefile)
+# ══════════════════════════════════════════════════════════════════════
+version: '3.8'
+
+services:
+
+  # ══════════════════════════════════════════════════════════════════
+  # CLUSTER A — 1 Task Manager + 2 TEE nodes
+  # ══════════════════════════════════════════════════════════════════
+
+  task-manager-1:
+    build: ./task_manager
+    container_name: task-manager-1
+    ports:
+      - "3000:3000"
+    environment:
+      - TEE_IPS=tee-a1,tee-a2
+      - ACCOUNT_INDEX=0
+      - GANACHE_RPC=http://blockchain-node:8545
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+    depends_on:
+      - tee-a1
+      - tee-a2
+    networks:
+      pgc-shared-net:
+        aliases:
+          - task-manager-1
+    restart: unless-stopped
+
+  tee-a1:
+    build: ./tee
+    container_name: tee-a1
+    expose:
+      - "9090"
+    networks:
+      pgc-shared-net:
+        aliases:
+          - tee-a1
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import socket; s=socket.socket(); s.settimeout(1); s.connect(('localhost',9090)); s.close()"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  tee-a2:
+    build: ./tee
+    container_name: tee-a2
+    expose:
+      - "9090"
+    networks:
+      pgc-shared-net:
+        aliases:
+          - tee-a2
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import socket; s=socket.socket(); s.settimeout(1); s.connect(('localhost',9090)); s.close()"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ══════════════════════════════════════════════════════════════════
+  # CLUSTER B — 1 Task Manager + 1 TEE node
+  # ══════════════════════════════════════════════════════════════════
+
+  task-manager-2:
+    build: ./task_manager
+    container_name: task-manager-2
+    ports:
+      - "3001:3000"
+    environment:
+      - TEE_IPS=tee-b1
+      - ACCOUNT_INDEX=1
+      - GANACHE_RPC=http://blockchain-node:8545
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+    depends_on:
+      - tee-b1
+    networks:
+      pgc-shared-net:
+        aliases:
+          - task-manager-2
+    restart: unless-stopped
+
+  tee-b1:
+    build: ./tee
+    container_name: tee-b1
+    expose:
+      - "9090"
+    networks:
+      pgc-shared-net:
+        aliases:
+          - tee-b1
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import socket; s=socket.socket(); s.settimeout(1); s.connect(('localhost',9090)); s.close()"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  pgc-shared-net:
+    external: true          # created by docker-compose.infra.yml
