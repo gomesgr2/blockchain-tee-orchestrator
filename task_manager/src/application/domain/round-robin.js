@@ -7,13 +7,13 @@ class RoundRobin {
 
     getNext() {
         if (this.targets.length === 0) return null;
-        
+
         const target = this.targets[this.currentIndex];
         // Move para o próximo e reseta se chegar ao fim
         this.currentIndex = (this.currentIndex + 1) % this.targets.length;
         return target;
     }
-    
+
     // Caso uma TEE caia no health check, atualizamos a lista
     updateTargets(newTargets) {
         this.targets = newTargets;

@@ -1,17 +1,10 @@
 // statusManager.js
-const { checkTEEHealth } = require('./tee');
+const { checkTEEHealth } = require('../../infrastructure/tee');
+const { ALL_TEEs, LATENCY_THRESHOLD, WINDOW_SIZE, COOLDOWN_MS, TEE_CHECK_INTERVAL } = require('../../config/status-manager');
 
-const ALL_TEEs = process.env.TEE_IPS ? process.env.TEE_IPS.split(',') : ['tee-1', 'tee-2'];
 
-// Configurações do Circuit Breaker
-const LATENCY_THRESHOLD = 40000; // 15s
-const WINDOW_SIZE = 10;
-const COOLDOWN_MS = 15000; // 15s de "castigo"
-
-let healthyTEEs = []; // Lista de TEEs que respondem ao Socket (Alive)
+let healthyTEEs = [];
 const teeStats = {};
-
-// Inicializa o objeto de status para cada IP
 ALL_TEEs.forEach(ip => {
     teeStats[ip] = {
         state: 'CLOSED', // CLOSED, OPEN, HALF_OPEN
@@ -104,7 +97,7 @@ function updateTeeLatency(ip, duration, success = true) {
 }
 
 // Background Task
-setInterval(updateHealth, 5000);
+setInterval(updateHealth, TEE_CHECK_INTERVAL);
 updateHealth();
 
 module.exports = { getAvailableTEEs, updateTeeLatency };
