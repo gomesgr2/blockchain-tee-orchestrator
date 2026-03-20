@@ -353,3 +353,6 @@ terraform.rc
 newrelic.ini
 
 *.pem
+
+# Test files
+/test_files

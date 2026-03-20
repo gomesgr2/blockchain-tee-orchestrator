@@ -1,0 +1,3 @@
+type,rps,file,avg_latency_s
+local,1 RPS,1kb,0.0373
+blockchain_fallback,1 RPS,1kb,0.0000

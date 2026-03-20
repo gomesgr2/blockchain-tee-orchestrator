@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain-TEE — Architecture Diagram</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f3ee;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 24px 80px;
+            min-height: 100vh;
+        }
+
+        h2 {
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 36px;
+            align-self: flex-start;
+            max-width: 960px;
+            width: 100%;
+        }
+
+        h2 span {
+            color: #888;
+            font-weight: 400;
+            margin-right: 10px;
+        }
+
+        /* ══════════════════════════════
+     DIAGRAM WRAPPER
+  ══════════════════════════════ */
+        .diagram-wrapper {
+            width: 100%;
+            max-width: 960px;
+            position: relative;
+        }
+
+        .arrows-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 20;
+        }
+
+        /* Azure outer border — subtle, not the focus */
+        .azure-outer {
+            width: 100%;
+            border: 1.5px dashed #a0bcd6;
+            border-radius: 22px;
+            background: rgba(0, 120, 212, 0.025);
+            padding: 20px 20px 32px;
+            position: relative;
+        }
+
+        .azure-label {
+            position: absolute;
+            top: -11px;
+            left: 22px;
+            background: #f4f3ee;
+            padding: 0 7px;
+            font-size: 0.68rem;
+            font-weight: 500;
+            color: #7aa8cc;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Client ── */
+        .client-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .client-box {
+            background: #fff;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 9px 30px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #111;
+            box-shadow: 2px 2px 0 #ccc;
+        }
+
+        .client-box small {
+            display: block;
+            font-weight: 400;
+            font-size: 0.68rem;
+            color: #777;
+            margin-top: 2px;
+        }
+
+        /* ── Middle row: [Cluster A] [Blockchain] [Cluster B] ── */
+        .middle-row {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr 1fr;
+            gap: 16px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        /* ══════════════════════════════
+     CLUSTER CARDS
+  ══════════════════════════════ */
+        .cluster {
+            border: 2.5px solid #3b82f6;
+            border-radius: 18px;
+            background: #eef3ff;
+            padding: 18px 14px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        /* Subtle zone label — very small, de-emphasized */
+        .zone-badge {
+            position: absolute;
+            top: -9px;
+            right: 12px;
+            font-size: 0.58rem;
+            color: #999;
+            background: #f4f3ee;
+            padding: 0 5px;
+            letter-spacing: 0.5px;
+            font-style: italic;
+        }
+
+        .cluster-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #3b82f6;
+            margin-bottom: 2px;
+        }
+
+        /* TM box — prominent */
+        .tm-box {
+            background: #2563eb;
+            border: 2px solid #1d4ed8;
+            border-radius: 12px;
+            padding: 12px 28px;
+            text-align: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.92rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            width: 100%;
+        }
+
+        .tm-box small {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 400;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* TEE nodes */
+        .tee-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .tee-box {
+            background: #d1fae5;
+            border: 1.5px solid #059669;
+            border-radius: 8px;
+            padding: 6px 13px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #065f46;
+            text-align: center;
+        }
+
+        .tee-box small {
+            display: block;
+            font-size: 0.6rem;
+            font-weight: 400;
+            color: #047857;
+            margin-top: 1px;
+        }
+
+        /* ══════════════════════════════
+     BLOCKCHAIN — CENTER FOCUS
+  ══════════════════════════════ */
+        .blockchain-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .blockchain-card {
+            width: 100%;
+            background: linear-gradient(160deg, #1e1b4b 0%, #312e81 60%, #3730a3 100%);
+            border: 2.5px solid #6366f1;
+            border-radius: 20px;
+            padding: 24px 20px 20px;
+            text-align: center;
+            box-shadow:
+                0 0 0 4px rgba(99, 102, 241, 0.12),
+                0 8px 28px rgba(99, 102, 241, 0.3);
+            position: relative;
+            z-index: 5;
+        }
+
+        .blockchain-card::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 24px;
+            border: 1px dashed rgba(99, 102, 241, 0.35);
+            pointer-events: none;
+        }
+
+        .bc-icon {
+            font-size: 2rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .bc-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e0e7ff;
+            margin-bottom: 3px;
+        }
+
+        .bc-sub {
+            font-size: 0.7rem;
+            color: #a5b4fc;
+            margin-bottom: 14px;
+        }
+
+        .bc-divider {
+            width: 100%;
+            height: 1px;
+            background: rgba(165, 180, 252, 0.2);
+            margin: 10px 0;
+        }
+
+        .bc-fn-list {
+            list-style: none;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bc-fn {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(165, 180, 252, 0.15);
+            border-radius: 7px;
+            padding: 6px 10px;
+        }
+
+        .bc-fn-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .bc-fn-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #c7d2fe;
+            display: block;
+        }
+
+        .bc-fn-desc {
+            font-size: 0.65rem;
+            color: #818cf8;
+            margin-top: 1px;
+            line-height: 1.4;
+        }
+
+        .ganache-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            border-radius: 100px;
+            padding: 4px 12px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-top: 4px;
+        }
+
+        /* ══════════════════════════════
+     LEGEND
+  ══════════════════════════════ */
+        .legend {
+            margin-top: 28px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.71rem;
+            color: #555;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .leg-line {
+            width: 32px;
+            height: 2.5px;
+            border-radius: 2px;
+        }
+
+        .leg-dashed {
+            width: 32px;
+            height: 0;
+            border-top: 2px dashed;
+        }
+
+        /* ══════════════════════════════
+     FALLBACK SECTION
+  ══════════════════════════════ */
+        .fallback-section {
+            margin-top: 56px;
+            width: 100%;
+            max-width: 960px;
+        }
+
+        .fallback-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .fallback-section h3 span {
+            color: #888;
+            font-weight: 400;
+            margin-right: 10px;
+        }
+
+        .fallback-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+        }
+
+        .fallback-steps::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 18px;
+            bottom: 18px;
+            width: 2px;
+            background: linear-gradient(to bottom, #ef4444 30%, #6366f1 70%, #22c55e);
+            opacity: 0.3;
+        }
+
+        .fb-step {
+            display: flex;
+            gap: 16px;
+            padding: 12px 0;
+            align-items: flex-start;
+        }
+
+        .fb-num {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.78rem;
+            border: 2px solid;
+            position: relative;
+            z-index: 1;
+            background: #f4f3ee;
+        }
+
+        .fb-num.red {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.45);
+        }
+
+        .fb-num.indigo {
+            color: #6366f1;
+            border-color: rgba(99, 102, 241, 0.45);
+        }
+
+        .fb-num.amber {
+            color: #d97706;
+            border-color: rgba(217, 119, 6, 0.45);
+        }
+
+        .fb-num.green {
+            color: #059669;
+            border-color: rgba(5, 150, 105, 0.45);
+        }
+
+        .fb-body {
+            padding-top: 4px;
+        }
+
+        .fb-title {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 3px;
+        }
+
+        .fb-desc {
+            font-size: 0.77rem;
+            color: #555;
+            line-height: 1.55;
+        }
+
+        .fb-code {
+            display: inline-block;
+            margin-top: 5px;
+            background: #eef2ff;
+            color: #4f46e5;
+            border: 1px solid #c7d2fe;
+            padding: 2px 9px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2><span>4</span> Proposed Architecture</h2>
+
+    <div class="diagram-wrapper" id="diagramWrapper">
+        <svg class="arrows-svg" id="arrows">
+            <defs></defs>
+        </svg>
+
+        <div class="azure-outer">
+            <div class="azure-label">Microsoft Azure ☁</div>
+
+            <!-- Client -->
+            <div class="client-wrap" id="client">
+                <div class="client-box">
+                    Client / Load Generator
+                    <small>(Local or External)</small>
+                </div>
+            </div>
+
+            <!-- [Cluster A] [Blockchain] [Cluster B] -->
+            <div class="middle-row">
+
+                <!-- Cluster A -->
+                <div class="cluster" id="clusterA">
+                    <div class="zone-badge">westus2</div>
+                    <div class="cluster-title">Cluster A</div>
+                    <div class="tm-box" id="tmA">
+                        TM-A
+                        <small>(Task Manager / Gateway)</small>
+                    </div>
+                    <div class="tee-row">
+                        <div class="tee-box" id="teeA1">TEE-A1<small>Intel SGX</small></div>
+                        <div class="tee-box" id="teeA2">TEE-A2<small>Intel SGX</small></div>
+                    </div>
+                </div>
+
+                <!-- Blockchain — center, prominent -->
+                <div class="blockchain-col">
+                    <div class="blockchain-card" id="blockchain">
+                        <span class="bc-icon">⛓️</span>
+                        <div class="bc-title">Blockchain</div>
+                        <div class="bc-sub">Trusted Orchestration Layer</div>
+
+                        <ul class="bc-fn-list">
+                            <li class="bc-fn">
+                                <div class="bc-fn-dot" style="background:#818cf8"></div>
+                                <div>
+                                    <span class="bc-fn-name">registerManager()</span>
+                                    <span class="bc-fn-desc">TMs register on startup</span>
+                                </div>
+                            </li>
+                            <li class="bc-fn">
+                                <div class="bc-fn-dot" style="background:#ef4444"></div>
+                                <div>
+                                    <span class="bc-fn-name">delegateToAny()</span>
+                                    <span class="bc-fn-desc">Cross-cluster fallback delegation</span>
+                                </div>
+                            </li>
+                            <li class="bc-fn">
+                                <div class="bc-fn-dot" style="background:#22c55e"></div>
+                                <div>
+                                    <span class="bc-fn-name">submitResults()</span>
+                                    <span class="bc-fn-desc">Immutable execution record</span>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="bc-divider"></div>
+                        <div class="ganache-tag">🔗 Ganache Node &nbsp;·&nbsp; :8545</div>
+                    </div>
+                </div>
+
+                <!-- Cluster B -->
+                <div class="cluster" id="clusterB">
+                    <div class="zone-badge">eastus2</div>
+                    <div class="cluster-title">Cluster B</div>
+                    <div class="tm-box" id="tmB">
+                        TM-B
+                        <small>(Task Manager / Gateway)</small>
+                    </div>
+                    <div class="tee-row">
+                        <div class="tee-box" id="teeB1">TEE-B1<small>Intel SGX</small></div>
+                    </div>
+                </div>
+
+            </div><!-- /middle-row -->
+        </div><!-- /azure-outer -->
+    </div><!-- /diagram-wrapper -->
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="leg-line" style="background:#3b82f6;"></div>
+            <span>Client request</span>
+        </div>
+        <div class="legend-item">
+            <div class="leg-line" style="background:#22c55e;"></div>
+            <span>Task dispatch (TM → TEE)</span>
+        </div>
+        <div class="legend-item">
+            <div class="leg-line" style="background:#f59e0b;"></div>
+            <span>Blockchain RPC :8545</span>
+        </div>
+        <div class="legend-item">
+            <div class="leg-dashed" style="border-color:#ef4444;"></div>
+            <span>Fallback — delegateToAny()</span>
+        </div>
+        <div class="legend-item">
+            <div class="leg-dashed" style="border-color:#8b5cf6;"></div>
+            <span>JobDelegated event → TM</span>
+        </div>
+    </div>
+
+    <!-- Fallback section -->
+    <div class="fallback-section">
+        <h3><span>4.1</span> Fallback Process via Blockchain</h3>
+        <div class="fallback-steps">
+
+            <div class="fb-step">
+                <div class="fb-num red">1</div>
+                <div class="fb-body">
+                    <div class="fb-title">TM-A detects local TEE unavailability</div>
+                    <div class="fb-desc">A health check or timeout indicates that TEE-A1 and TEE-A2 are unavailable or
+                        overloaded. TM-A cannot process the job locally and initiates the fallback.</div>
+                </div>
+            </div>
+
+            <div class="fb-step">
+                <div class="fb-num red">2</div>
+                <div class="fb-body">
+                    <div class="fb-title">TM-A calls delegateToAny() on the Smart Contract</div>
+                    <div class="fb-desc">TM-A sends a transaction to Ganache calling the smart contract. The job ID and
+                        file URL are registered on-chain.</div>
+                    <span class="fb-code">smartContract.delegateToAny(jobId, fileUrl)</span>
+                </div>
+            </div>
+
+            <div class="fb-step">
+                <div class="fb-num indigo">3</div>
+                <div class="fb-body">
+                    <div class="fb-title">Smart Contract selects target manager &amp; emits event</div>
+                    <div class="fb-desc">The contract scans registered authorized managers, picks TM-B, records the job,
+                        and emits a JobDelegated event — without exposing any internal IPs.</div>
+                    <span class="fb-code">emit JobDelegated(jobId, targetManagerAddress, fileUrl)</span>
+                </div>
+            </div>
+
+            <div class="fb-step">
+                <div class="fb-num indigo">4</div>
+                <div class="fb-body">
+                    <div class="fb-title">TM-B receives the JobDelegated event</div>
+                    <div class="fb-desc">TM-B continuously listens for blockchain events filtered by its own address.
+                        Upon receiving the event it extracts the job ID and file URL from the on-chain log.</div>
+                </div>
+            </div>
+
+            <div class="fb-step">
+                <div class="fb-num amber">5</div>
+                <div class="fb-body">
+                    <div class="fb-title">TM-B downloads the input file</div>
+                    <div class="fb-desc">Using the file URL from the event, TM-B fetches the input payload from the
+                        Azure Storage blob container.</div>
+                </div>
+            </div>
+
+            <div class="fb-step">
+                <div class="fb-num green">6</div>
+                <div class="fb-body">
+                    <div class="fb-title">TM-B dispatches the job to TEE-B1</div>
+                    <div class="fb-desc">The job runs inside the Intel SGX enclave — confidential and tamper-resistant.
+                    </div>
+                </div>
+            </div>
+
+            <div class="fb-step">
+                <div class="fb-num green">7</div>
+                <div class="fb-body">
+                    <div class="fb-title">Result recorded on-chain</div>
+                    <div class="fb-desc">TEE-B1 returns the result to TM-B, which calls submitResults(). Execution is
+                        stored immutably on the blockchain.</div>
+                    <span class="fb-code">smartContract.submitResults(jobId, charCount, message)</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function rel(el, ref) {
+            const er = el.getBoundingClientRect();
+            const rr = ref.getBoundingClientRect();
+            return {
+                top: er.top - rr.top,
+                bottom: er.bottom - rr.top,
+                left: er.left - rr.left,
+                right: er.right - rr.left,
+                cx: (er.left + er.right) / 2 - rr.left,
+                cy: (er.top + er.bottom) / 2 - rr.top,
+            };
+        }
+
+        function mk(tag, attrs, parent) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+            if (parent) parent.appendChild(el);
+            return el;
+        }
+
+        function addMarker(svg, id, color) {
+            const defs = svg.querySelector('defs');
+            const m = mk('marker', { id, markerWidth: '8', markerHeight: '8', refX: '6', refY: '3', orient: 'auto' }, defs);
+            mk('path', { d: 'M0,0 L0,6 L8,3 z', fill: color }, m);
+        }
+
+        function line(svg, x1, y1, x2, y2, color, dashed, label, labelOffsetY = 0) {
+            const id = 'a' + Math.random().toString(36).slice(2);
+            addMarker(svg, id, color);
+            mk('line', {
+                x1, y1, x2, y2,
+                stroke: color, 'stroke-width': '2',
+                'marker-end': `url(#${id})`,
+                ...(dashed ? { 'stroke-dasharray': '6,4' } : {}),
+                opacity: '0.95'
+            }, svg);
+            if (label) {
+                const t = mk('text', {
+                    x: (x1 + x2) / 2, y: (y1 + y2) / 2 + labelOffsetY - 5,
+                    'text-anchor': 'middle', 'font-size': '9.5',
+                    'font-family': 'Inter,sans-serif', fill: color, 'font-weight': '600'
+                }, svg);
+                t.textContent = label;
+            }
+        }
+
+        function curve(svg, x1, y1, x2, y2, cpx, cpy, color, dashed, label, lx, ly) {
+            const id = 'a' + Math.random().toString(36).slice(2);
+            addMarker(svg, id, color);
+            mk('path', {
+                d: `M${x1},${y1} Q${cpx},${cpy} ${x2},${y2}`,
+                stroke: color, 'stroke-width': '2', fill: 'none',
+                'marker-end': `url(#${id})`,
+                ...(dashed ? { 'stroke-dasharray': '6,4' } : {}),
+                opacity: '0.95'
+            }, svg);
+            if (label) {
+                const t = mk('text', {
+                    x: lx ?? cpx, y: (ly ?? cpy) - 6,
+                    'text-anchor': 'middle', 'font-size': '9.5',
+                    'font-family': 'Inter,sans-serif', fill: color, 'font-weight': '600'
+                }, svg);
+                t.textContent = label;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            const wrapper = document.getElementById('diagramWrapper');
+            const svg = document.getElementById('arrows');
+
+            const client = rel(document.getElementById('client'), wrapper);
+            const tmAEl = document.getElementById('tmA');
+            const tmBEl = document.getElementById('tmB');
+            const tmA = rel(tmAEl, wrapper);
+            const tmB = rel(tmBEl, wrapper);
+            const teeA1 = rel(document.getElementById('teeA1'), wrapper);
+            const teeA2 = rel(document.getElementById('teeA2'), wrapper);
+            const teeB1 = rel(document.getElementById('teeB1'), wrapper);
+            const bc = rel(document.getElementById('blockchain'), wrapper);
+            const clA = rel(document.getElementById('clusterA'), wrapper);
+            const clB = rel(document.getElementById('clusterB'), wrapper);
+
+            // Client → Cluster A (top of cluster box)
+            curve(svg,
+                client.cx - 20, client.bottom,
+                clA.cx, clA.top,
+                clA.cx - 20, client.bottom + 14,
+                '#3b82f6', false, 'request', clA.cx - 28, client.bottom + 14
+            );
+
+            // Client → Cluster B
+            curve(svg,
+                client.cx + 20, client.bottom,
+                clB.cx, clB.top,
+                clB.cx + 20, client.bottom + 14,
+                '#3b82f6', false
+            );
+
+            // TM-A → TEE-A1
+            curve(svg,
+                tmA.cx - 12, tmA.bottom,
+                teeA1.cx, teeA1.top,
+                teeA1.cx - 4, tmA.bottom + 8,
+                '#22c55e', false
+            );
+            // TM-A → TEE-A2
+            curve(svg,
+                tmA.cx + 12, tmA.bottom,
+                teeA2.cx, teeA2.top,
+                teeA2.cx + 4, tmA.bottom + 8,
+                '#22c55e', false
+            );
+
+            // TM-B → TEE-B1
+            line(svg, tmB.cx, tmB.bottom, teeB1.cx, teeB1.top, '#22c55e', false);
+
+            // TM-A → Blockchain (normal RPC — amber)
+            curve(svg,
+                clA.right, tmA.cy,
+                bc.left, bc.cy - 18,
+                (clA.right + bc.left) / 2, tmA.cy - 22,
+                '#d97706', false, 'RPC :8545',
+                (clA.right + bc.left) / 2, tmA.cy - 26
+            );
+
+            // TM-B → Blockchain (normal RPC — amber)
+            curve(svg,
+                clB.left, tmB.cy,
+                bc.right, bc.cy - 18,
+                (clB.left + bc.right) / 2, tmB.cy - 22,
+                '#d97706', false
+            );
+
+            // Fallback: TM-A → Blockchain (delegateToAny — red dashed)
+            curve(svg,
+                clA.right, tmA.cy + 18,
+                bc.left, bc.cy + 10,
+                (clA.right + bc.left) / 2, tmA.cy + 52,
+                '#ef4444', true, 'delegateToAny()',
+                (clA.right + bc.left) / 2, tmA.cy + 50
+            );
+
+            // Fallback: Blockchain → TM-B (JobDelegated — purple dashed)
+            curve(svg,
+                bc.right, bc.cy + 10,
+                clB.left, tmB.cy + 18,
+                (bc.right + clB.left) / 2, tmB.cy + 52,
+                '#8b5cf6', true, 'JobDelegated ✉',
+                (bc.right + clB.left) / 2, tmB.cy + 50
+            );
+        });
+    </script>
+</body>
+
+</html>
