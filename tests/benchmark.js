@@ -30,11 +30,11 @@ const SUBMIT_URL = process.env.TM_URL || ENV.submitUrl;
 const FILE_BASE = process.env.FILE_BASE || ENV.fileBase;
 const RPS_LEVELS = (process.env.RPS_LEVELS || '1,10,50,100').split(',').map(Number);
 const REPEAT = parseInt(process.env.REPEAT || '5', 10);
-const TIMEOUT = parseInt(process.env.TIMEOUT_MS || '60000', 10);
+const TIMEOUT = parseInt(process.env.TIMEOUT_MS || '200000', 10);
 const COOL_DOWN = parseInt(process.env.COOL_DOWN_S || '60', 10) * 1000;
 
-const FILES = ['1kb.pdf', '5kb.pdf', '10kb.pdf', '50kb.pdf', '100kb.pdf'];
-const FILE_LABELS = ['1kb', '5kb', '10kb', '50kb', '100kb'];
+const FILES = ['1kb.pdf', '10kb.pdf', '100kb.pdf', '1mb.pdf', '5mb.pdf'];
+const FILE_LABELS = ['1kb', '10kb', '100kb', '1mb', '5mb'];
 
 console.log('═══════════════════════════════════════════════════════');
 console.log(` ⚙  Environment  : ${ENV.name.toUpperCase()}`);
@@ -62,7 +62,7 @@ function detectEnvironment() {
         return {
             name: 'cloud',
             submitUrl: tmIp ? `http://${tmIp}:3000/submit` : 'http://REPLACE_TM_IP:3000/submit',
-            fileBase: fileIp ? `http://${fileIp}` : 'http://REPLACE_FILE_IP',
+            fileBase: fileIp ? `https://${fileIp}` : 'http://REPLACE_FILE_IP',
         };
     }
 

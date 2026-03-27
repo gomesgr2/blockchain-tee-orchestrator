@@ -23,32 +23,46 @@ resource "azurerm_linux_virtual_machine" "vm_sgx" {
 
   custom_data = base64encode(<<-CUSTOM_DATA
     #!/bin/bash
-    sudo apt-get update
-    sudo apt-get install -y docker.io
+    set -e
 
-    sudo pip3 install docker
+    # ── 1. Install Docker ────────────────────────────────────────────
+    apt-get update -y
+    apt-get install -y docker.io python3-pip
+    systemctl enable docker          # survive reboots
+    systemctl start docker
 
-  sudo docker pull ${var.tee_code_image}
+    # ── 2. Pull & run TEE container ─────────────────────────────────
+    docker pull ${var.tee_code_image}
 
-    # If an enclave key file is provided via Terraform variable, write it to disk
-    # so the container (or build steps) can use it. If not present, this is a no-op.
-    if [ -n "${var.enclave_key_path}" ] && [ -f "${var.enclave_key_path}" ]; then
-      echo "${file(var.enclave_key_path)}" > enclave-key.pem
-    fi
+    docker run -d \
+      --name tee-code \
+      --restart always \
+      -p 9090:9090 \
+      ${var.tee_code_image}
 
-    # If a manifest is provided, write it as well (some flows require it)
-    if [ -n "${var.manifest_path}" ] && [ -f "${var.manifest_path}" ]; then
-      echo '${file(var.manifest_path)}' > config.manifest
-    fi
+    # ── 3. Systemd service — ensures container restarts after Spot   ──
+    #        eviction / deallocation even if cloud-init doesn't re-run
+    cat > /etc/systemd/system/tee-code.service <<'EOF'
+    [Unit]
+    Description=TEE go Docker container
+    After=docker.service
+    Requires=docker.service
 
-      sudo docker run -d \
-        --name tee-node \
-        --restart always \
-        -p 9090:9090 \
-        ${var.tee_code_image}
+    [Service]
+    Restart=always
+    ExecStart=/usr/bin/docker start -a tee-code
+    ExecStop=/usr/bin/docker stop tee-code
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+
+    systemctl daemon-reload
+    systemctl enable tee-code.service
 
     CUSTOM_DATA
   )
+
 
   admin_ssh_key {
     username   = "ubuntu"

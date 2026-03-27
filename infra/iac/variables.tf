@@ -42,7 +42,7 @@ variable "contract_abi" {
 
 variable "contract_address" {
   description = "Endereço do contrato inteligente"
-  default     = ""
+  default     = "0x5b92A0289CBeBacC143842122bC3c5B78e5584FB"
 }
 
 variable "number_machines" {

@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
 
   tee-a1:
-    build: ./tee
+    build: ./tee_code
     container_name: tee-a1
     expose:
       - "9090"
@@ -67,7 +67,7 @@ services:
     restart: unless-stopped
 
   tee-a2:
-    build: ./tee
+    build: ./tee_code
     container_name: tee-a2
     expose:
       - "9090"
@@ -106,7 +106,7 @@ services:
     restart: unless-stopped
 
   tee-b1:
-    build: ./tee
+    build: ./tee_code
     container_name: tee-b1
     expose:
       - "9090"
