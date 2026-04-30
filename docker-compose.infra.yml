@@ -32,6 +32,8 @@ services:
       - "--accounts"
       - "5"
       - "--deterministic"
+      - "--blockTime"
+      - "15"
     networks:
       pgc-network:
         aliases:

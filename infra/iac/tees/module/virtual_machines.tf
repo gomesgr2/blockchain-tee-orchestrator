@@ -38,6 +38,8 @@ resource "azurerm_linux_virtual_machine" "vm_sgx" {
       --name tee-code \
       --restart always \
       -p 9090:9090 \
+      --device /dev/sgx_enclave \
+      --device /dev/sgx_provision \
       ${var.tee_code_image}
 
     # ── 3. Systemd service — ensures container restarts after Spot   ──

@@ -115,7 +115,9 @@ resource "azurerm_linux_virtual_machine" "blockchain_vm" {
       docker run --name ganache -d \
         --network=host \
         --restart always \
-        ${var.dockerhub_image_blockchain}
+        ${var.dockerhub_image_blockchain} \
+        --accounts 5 \
+        --blockTime 15
     fi
 
     # ── 3. Systemd service — survives Spot evictions / reboots ─────

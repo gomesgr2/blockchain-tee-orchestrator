@@ -3,6 +3,7 @@ const { app, blockchainListener } = require('./presentation');
 const { web3, contract } = require('./infrastructure/blockchain');
 const { log } = require('./utils/logger');
 const { registerManager } = require('./application/use-cases/register-manager');
+const { ready: teeReady } = require('./application/domain/status-manager');
 
 async function startApp() {
     let connected = false;
@@ -21,6 +22,8 @@ async function startApp() {
             await new Promise(resolve => setTimeout(resolve, 3000));
         }
     }
+
+    await teeReady;
 
     app.listen(3000, () => {
         log("SERVER_STARTED", { port: 3000 });

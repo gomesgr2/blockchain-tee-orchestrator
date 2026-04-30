@@ -79,7 +79,7 @@ variable "task_manager_location_list" {
 variable "location_list" {
   description = "Optional list of Azure regions per machine."
   type        = list(string)
-  default     = ["westus2", "westus2", "eastus2"]
+  default     = ["westus2", "eastus2", "eastus2"]
 }
 
 variable "allowed_ssh_cidrs" {

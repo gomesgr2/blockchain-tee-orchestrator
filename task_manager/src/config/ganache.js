@@ -5,6 +5,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const CONTRACT_ABI = compiled.contracts['smartContract.sol:smartContract'].abi;
 const GANACHE_POLLING_INTERVAL = 2000;
 const GANACHE_ACCOUNT_INDEX = process.env.ACCOUNT_INDEX || 0;
+const MAX_BLOCKCHAIN_CONCURRENCY = process.env.MAX_BLOCKCHAIN_CONCURRENCY || 250;
 
 module.exports = {
     GANACHE_RPC,
