@@ -28,14 +28,14 @@ const ENV = detectEnvironment();
 
 const SUBMIT_URL = process.env.TM_URL || ENV.submitUrl;
 const FILE_BASE = process.env.FILE_BASE || ENV.fileBase;
-const RPS_LEVELS = (process.env.RPS_LEVELS || '2000').split(',').map(Number);
+const RPS_LEVELS = (process.env.RPS_LEVELS || '60').split(',').map(Number);
 const REPEAT = parseInt(process.env.REPEAT || '5', 10);
 const TIMEOUT = parseInt(process.env.TIMEOUT_MS || '60000', 10);
-const COOL_DOWN = parseInt(process.env.COOL_DOWN_S || '60', 10) * 1000;
+const COOL_DOWN = parseInt(process.env.COOL_DOWN_S || '1', 10) * 1000;
 const ERROR_THRESHOLD = parseFloat(process.env.ERROR_THRESHOLD || '0.05');
 
-const FILES = ['1mb.pdf'];
-const FILE_LABELS = ['1mb'];
+const FILES = ['1kb.pdf', '10kb.pdf', '50kb.pdf', '100kb.pdf', '1mb.pdf'];
+const FILE_LABELS = ['1kb', '10kb', '50kb', '100kb', '1mb'];
 
 console.log('═══════════════════════════════════════════════════════');
 console.log(` ⚙  Environment      : ${ENV.name.toUpperCase()}`);

@@ -1,5 +1,7 @@
 .PHONY: infra up down logs clean tf-init stop-apps start benchmark-local benchmark-cloud
 
+OFFLOAD_PERCENTAGE ?= 0
+
 COMPOSE_INFRA = docker compose -f docker-compose.infra.yml
 COMPOSE_APPS  = docker compose -f docker-compose.apps.yml
 
@@ -45,7 +47,7 @@ up:
 		echo "❌ .env.local not found. Run 'make infra' first."; exit 1; \
 	fi
 	@export $$(cat .env.local | xargs) && \
-		$(COMPOSE_APPS) up -d --build
+		OFFLOAD_PERCENTAGE=$(OFFLOAD_PERCENTAGE) $(COMPOSE_APPS) up -d --build
 	@echo "🚀 Clusters running:"
 	@echo "   Cluster A  →  TM-1 : http://localhost:3000"
 	@echo "   Cluster B  →  TM-2 : http://localhost:3001"

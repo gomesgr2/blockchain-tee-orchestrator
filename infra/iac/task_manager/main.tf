@@ -41,6 +41,7 @@ resource "azurerm_linux_virtual_machine" "task_manager" {
       -e CONTRACT_ADDRESS="${var.contract_address}" \
       -e ACCOUNT_INDEX="${count.index}" \
       -e TEE_IPS="${join(",", lookup(var.tees_by_location, var.task_manager_locations[count.index], []))}" \
+      -e OFFLOAD_PERCENTAGE="50" \
       ${var.task_manager_image}
 
     # ── 3. Systemd service — survives reboots ─────────────────────

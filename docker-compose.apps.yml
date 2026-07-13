@@ -40,6 +40,7 @@ services:
       - ACCOUNT_INDEX=0
       - GANACHE_RPC=http://blockchain-node:8545
       - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - OFFLOAD_PERCENTAGE=${OFFLOAD_PERCENTAGE:-0}
     depends_on:
       - tee-a1
       - tee-a2
@@ -97,6 +98,7 @@ services:
       - ACCOUNT_INDEX=1
       - GANACHE_RPC=http://blockchain-node:8545
       - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - OFFLOAD_PERCENTAGE=${OFFLOAD_PERCENTAGE:-0}
     depends_on:
       - tee-b1
     networks:
