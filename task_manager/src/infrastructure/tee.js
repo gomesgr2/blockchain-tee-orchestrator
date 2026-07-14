@@ -51,8 +51,9 @@ function checkTEEHealth(host, port = 9090) {
 
         console.log(`Verificando saúde da TEE em ${host}:${port}...`);
 
-        // Define um timeout curto (ex: 300ms) para não travar o Task Manager
-        socket.setTimeout(50);
+        // Timeout generoso o suficiente para redes cloud (Azure, etc.) mas ainda
+        // curto o suficiente para não bloquear o loop de roteamento.
+        socket.setTimeout(500);
 
         socket.on('connect', () => {
             socket.destroy(); // Conexão bem-sucedida, podemos fechar

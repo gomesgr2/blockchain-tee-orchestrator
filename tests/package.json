@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^1.13.6",
     "chartjs-node-canvas": "^5.0.0",
+    "k6": "^0.0.0",
     "perf-hook": "^1.0.4"
   }
 }

@@ -1,0 +1,3 @@
+FROM gabriel2011/tee-code
+COPY debug.py /app/main.py
+RUN cd /app && gramine-manifest -Dlog_level=error -Darch_libdir=/lib/x86_64-linux-gnu python.manifest.template > python.manifest && gramine-sgx-sign --key enclave-key.pem --manifest python.manifest --output python.manifest.sgx

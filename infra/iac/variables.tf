@@ -42,7 +42,7 @@ variable "contract_abi" {
 
 variable "contract_address" {
   description = "Endereço do contrato inteligente"
-  default     = ""
+  default     = "0x5b92A0289CBeBacC143842122bC3c5B78e5584FB"
 }
 
 variable "number_machines" {
@@ -79,7 +79,7 @@ variable "task_manager_location_list" {
 variable "location_list" {
   description = "Optional list of Azure regions per machine."
   type        = list(string)
-  default     = ["westus2", "westus2", "eastus2"]
+  default     = ["westus2", "eastus2", "eastus2"]
 }
 
 variable "allowed_ssh_cidrs" {

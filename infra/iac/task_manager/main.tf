@@ -22,22 +22,50 @@ resource "azurerm_linux_virtual_machine" "task_manager" {
 
   custom_data = base64encode(<<-CUSTOM
     #!/bin/bash
-    apt-get update
+    set -e
+
+    # ── 1. Install Docker ──────────────────────────────────────────
+    apt-get update -y
     apt-get install -y docker.io
+    systemctl enable docker
+    systemctl start docker
+
+    # ── 2. Pull & run Task Manager ────────────────────────────────
     docker pull ${var.task_manager_image}
 
     docker run -d \
       --name task-manager \
       --restart always \
       -p 3000:3000 \
-      -e PRIVATE_KEY="${var.tms_private_keys[count.index]}" \
       -e GANACHE_RPC="${var.ganache_rpc}" \
       -e CONTRACT_ADDRESS="${var.contract_address}" \
       -e ACCOUNT_INDEX="${count.index}" \
       -e TEE_IPS="${join(",", lookup(var.tees_by_location, var.task_manager_locations[count.index], []))}" \
+      -e OFFLOAD_PERCENTAGE="50" \
       ${var.task_manager_image}
-    CUSTOM
+
+    # ── 3. Systemd service — survives reboots ─────────────────────
+    cat > /etc/systemd/system/task-manager.service <<'EOF'
+    [Unit]
+    Description=Task Manager Docker container
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=always
+    RestartSec=5
+    ExecStart=/usr/bin/docker start -a task-manager
+    ExecStop=/usr/bin/docker stop task-manager
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+
+    systemctl daemon-reload
+    systemctl enable task-manager.service
+  CUSTOM
   )
+
 
   admin_ssh_key {
     username   = "ubuntu"

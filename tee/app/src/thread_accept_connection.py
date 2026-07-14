@@ -1,8 +1,7 @@
 import io
 from src.logger import LOGGER
 import traceback
-import PyPDF2
-# import newrelic.agent
+import fitz  # PyMuPDF — C++ binding, libera o GIL durante extração
 import json
 
 
@@ -10,12 +9,11 @@ import json
 def process_pdf_data(job_id, pdf_data):
     try:
         LOGGER.info(f"Processando job {job_id}")
-        total_response = 0
-        file = io.BytesIO(pdf_data)
-        reader = PyPDF2.PdfReader(file)
-        for page in reader.pages:
-            total_response += len(page.extract_text())
-        return {"jobId": job_id, "charCount": total_response, "message": "SUCESSO"}
+        # fitz.open com stream libera o GIL internamente (código C++)
+        doc = fitz.open(stream=pdf_data, filetype="pdf")
+        total_chars = sum(len(page.get_text()) for page in doc)
+        doc.close()
+        return {"jobId": job_id, "charCount": total_chars, "message": "SUCESSO"}
     except Exception:
         formatted_exc = traceback.format_exc()
         LOGGER.error(formatted_exc)
